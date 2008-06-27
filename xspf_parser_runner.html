@@ -1,0 +1,111 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html debug="true"><head>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+
+
+
+  <script src="xspf_parser_runner_files/firebug.js" type="text/javascript" charset="utf-8"></script>
+
+  <script src="xspf_parser_runner_files/Spec.js" type="text/javascript" charset="utf-8"></script>
+  <script src="xspf_parser_runner_files/xspf_parser_spec.js" type="text/javascript" charset="utf-8"></script>
+  
+  <script src="xspf_parser_runner_files/mootools.js"></script>
+  <script src="xspf_parser_runner_files/xspf_parser.js"></script>
+  <script type="text/javascript" charset="utf-8">
+  window.addEvent('domready',function() {
+    $('xspf_input').addEvent('submit',function(e) {
+      console.info('Parsing the XSPF');
+      e.stop();
+      var xmldom = XSPF.XMLfromString($('xspfbody').getValue());
+      console.info('The XML DOM as provided by the browser:');
+      console.log(xmldom);
+      console.info('The resulting Javascript Object (JSPF):');
+      var jspf = XSPF.toJSPF(xmldom);
+      console.log(jspf);
+      var string = Json.encode(jspf).replace(/,/g,', ');
+      console.info('JSPF as a string:');
+      console.log(string);
+      $('json_result').innerHTML = string;
+    });
+    Spec.start('XSPFParser');
+  });
+  </script>
+  <title>XSPF to JSPF Parser</title>
+</head><body>
+  <h1>XSPF to JSPF Parser in Javascript</h1>
+  <p>This is
+a parser released under the LGPL 3, which allows you to parse and use
+XSPF playlists in your browser-side javascript code. It outputs a
+Javascript object that conforms to <a href="http://wiki.xiph.org/index.php/JSPF_Draft">the specification of JSPF</a>. It is hoped that by standardizing a JSON format for XSPF, an ecosystem of free browser based music players will arise.</p>
+  <p>This
+document will run the specifications for the XSPF.toJSPF parser. The
+output should appear in the firebug console (or firebug lite if firebug
+is not available.) You can also paste XSPF documents into the textarea
+below to have them parsed. An excellent source of example XSPF files is
+<a href="http://svn.xiph.org/trunk/xspf/testcase/for_version_1/pass/">the XSPF testcase collection in the Xiph repository</a>.</p>
+  <p>Contact <a href="mailto:jchris@mfdz.com">Chris Anderson</a></p>
+  <h2>Usage</h2>
+  <p>
+Usage is simple. First, acquire an XML DOM for the XSPF you wish to
+parse. (see below.) Now that you have the xml document object, just
+pass it to the parser. </p><pre>      var jspf = XSPF.toJSPF(xmldom);
+    </pre>
+    Accessing values is easy. The style is plain old javascript:
+    <pre>      var title = jspf.playlist.title;
+      var tracks = jspf.playlist.track;
+      var first_annotation = tracks[0].annotation;
+      var first_location = tracks[0].location[0];
+    </pre>
+    The complete reference to the JSPF object is contained in <a href="http://wiki.xiph.org/index.php/JSPF_Draft">the specification</a>. If you don't have <a href="http://www.getfirebug.com/">Firebug</a>, get it, it will let you just click around the object graph. There is no more useful Javascript coder's tool.
+    
+    <h3>Getting an XML DOM.</h3> 
+    <p>If
+you are requesting the XSPF using ajax you can usually get the
+responseXML directly from the transport object. Sometimes headers don't
+make this easy, or for whatever reason you may have an XSPF string but
+no DOM. There is a helper function which turns a string into a DOM. </p><pre>      var xmldom = XSPF.XMLfromString(xspf_string);
+    </pre>
+  
+  <h2>Features</h2>
+  <ul>
+    <li>Parses the complete set of elements as specified for JSPF (ie pretty much all of XSPF)</li>  
+    <li>Allows users to plugin parsers for their particular application. Adding a parser is simple: </li>
+    
+      <h3>Playlist level extension parser.</h3>
+      <pre>        XSPF.extensionParsers.playlist['http://myapplication.com/v1'] = function(xmlnode) {
+          //gets passed each playlist extension node for your application (one at a time)
+          ...
+          return object or array.
+        };
+      </pre>
+      <h3>Track extension parser.</h3>
+      <pre>        XSPF.extensionParsers.track['http://myapplication.com/v1'] = function(xmlnode) {
+          //gets passed each playlist extension node for your application (one at a time)
+          ...
+          return object or array.
+        };
+      </pre>
+      <li>Leading and trailing whitespace is stripped from around all fields that XSPF specifies as integers or URIs (this is a feature).</li>
+  </ul>
+  
+  <h2>Known issues</h2>
+  <ul>
+    <li>Doesn't
+handle namespaces. It should pretty much look the other way if you
+include foreign namespaces in an XSPF document, but it won't be able to
+find XSPF if it has been included as a prefix namespace in other XML.
+If you are a browser XML DOM ninja, you may be able to extract just the
+namespace for XSPF from a larger context, and feed that to the XSPF
+parser.</li>
+  </ul>
+  <h2>Try it out</h2>
+  <form id="xspf_input">
+    <label for="xspf">Enter an XSPF document to parse.</label>
+    <br>
+    <textarea id="xspfbody" name="xspfbody" rows="15" cols="40"></textarea>
+    <input value="Parse" type="submit">
+  </form>
+  <p>The output of the parser should appear here.</p>
+  <code id="json_result"></code>
+  <div style="height: 400px;"></div>
+</body></html>
