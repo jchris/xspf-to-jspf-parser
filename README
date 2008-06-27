@@ -30,21 +30,22 @@ Features
 
 Parses the complete set of elements as specified for JSPF (ie pretty much all of XSPF)
 Allows users to plugin parsers for their particular application. Adding a parser is simple:
+
 Playlist level extension parser.
 
-        XSPF.extensionParsers.playlist['http://myapplication.com/v1'] = function(xmlnode) {
-          //gets passed each playlist extension node for your application (one at a time)
-          ...
-          return object or array.
-        };
+  XSPF.extensionParsers.playlist['http://myapplication.com/v1'] = function(xmlnode) {
+    //gets passed each playlist extension node for your application (one at a time)
+    ...
+    return object or array.
+  };
       
 Track extension parser.
 
-        XSPF.extensionParsers.track['http://myapplication.com/v1'] = function(xmlnode) {
-          //gets passed each playlist extension node for your application (one at a time)
-          ...
-          return object or array.
-        };
+  XSPF.extensionParsers.track['http://myapplication.com/v1'] = function(xmlnode) {
+    //gets passed each playlist extension node for your application (one at a time)
+    ...
+    return object or array.
+  };
       
 Leading and trailing whitespace is stripped from around all fields that XSPF specifies as integers or URIs (this is a feature).
 
